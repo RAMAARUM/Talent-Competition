@@ -1,0 +1,2 @@
+﻿D:\repo\talent-competition\Talent.Core\Talent.Core.csproj : error  : The project file could not be loaded. Could not find a part of the path 'D:\repo\talent-competition\Talent.Core\Talent.Core.csproj'.  D:\repo\talent-competition\Talent.Core\Talent.Core.csproj
+
