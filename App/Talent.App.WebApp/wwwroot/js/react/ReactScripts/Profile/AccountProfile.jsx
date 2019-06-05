@@ -35,8 +35,8 @@ export default class AccountProfile extends React.Component {
                 visaExpiryDate: '',
                 profilePhoto: '',
                 linkedAccounts: {
-                    linkedIn: "",
-                    github: ""
+                    linkedIn: " ",
+                    github: " "
                 },
                 jobSeekingStatus: {
                     status: "",
@@ -76,7 +76,8 @@ export default class AccountProfile extends React.Component {
             },
             type: "GET",
             success: function (res) {
-                this.updateWithoutSave(res.data)
+                console.log(res.data+"get")
+                this.updateWithoutSave(res.data)                
             }.bind(this)
         })
         this.init()
@@ -87,14 +88,17 @@ export default class AccountProfile extends React.Component {
         this.setState({
             profileData: newProfile
         })
+        
     }
 
     //updates component's state and saves data
     updateAndSaveData(newValues) {
-        let newProfile = Object.assign({}, this.state.profileData, newValues)
+        let newProfile = Object.assign({}, this.state.profileData, newValues)  
+        console.log(newProfile)
         this.setState({
             profileData: newProfile
         }, this.saveProfile)
+        console.log(this.state.profileData)        
     }
 
     updateForComponentId(componentId, newValues) {
@@ -102,6 +106,8 @@ export default class AccountProfile extends React.Component {
     }
 
     saveProfile() {
+        console.log(JSON.stringify(this.state.profileData))        
+        console.log(JSON.stringify(this.state.profileData.languages))        
         var cookies = Cookies.get('talentAuthToken');
         $.ajax({
             url: 'http://localhost:60290/profile/profile/updateTalentProfile',
@@ -112,7 +118,7 @@ export default class AccountProfile extends React.Component {
             type: "POST",
             data: JSON.stringify(this.state.profileData),
             success: function (res) {
-                console.log(res)
+                console.log(res, res.success + "successmess")
                 if (res.success == true) {
                     TalentUtil.notification.show("Profile updated sucessfully", "success", null, null)
                 } else {
@@ -121,6 +127,7 @@ export default class AccountProfile extends React.Component {
 
             }.bind(this),
             error: function (res, a, b) {
+                console.log(res.success+"errormess")
                 console.log(res)
                 console.log(a)
                 console.log(b)
@@ -135,6 +142,11 @@ export default class AccountProfile extends React.Component {
             email: this.state.profileData.email,
             phone: this.state.profileData.phone
         }
+
+       // console.log(this.state.profileData.linkedAccounts.linkedIn + "renderlinkedin")
+        console.log(this.state.profileData.summary + "Summary")
+        console.log(this.state.profileData)
+
         return (
             <BodyWrapper reload={this.loadData} loaderData={this.state.loaderData}>
                 <section className="page-body">
@@ -147,7 +159,7 @@ export default class AccountProfile extends React.Component {
                                             title='Linked Accounts'
                                             tooltip='Linking to online social networks adds credibility to your profile'
                                         >
-                                            <SocialMediaLinkedAccount
+                                            <SocialMediaLinkedAccount                                               
                                                 linkedAccounts={this.state.profileData.linkedAccounts}
                                                 updateProfileData={this.updateWithoutSave}
                                                 saveProfileData={this.updateAndSaveData}
@@ -207,25 +219,7 @@ export default class AccountProfile extends React.Component {
                                                 experienceData={this.state.profileData.experience}
                                                 updateProfileData={this.updateAndSaveData}
                                             />
-                                        </FormItemWrapper>
-                                        <FormItemWrapper
-                                            title='Education'
-                                            tooltip='Add your educational background'
-                                        >
-                                            <Education
-                                                educationData={this.state.profileData.education}
-                                                updateProfileData={this.updateAndSaveData}
-                                            />
-                                        </FormItemWrapper>
-                                        <FormItemWrapper
-                                            title='Certification'
-                                            tooltip='List your certificates, honors and awards'
-                                        >
-                                            <Certificate
-                                                certificateData={this.state.profileData.certifications}
-                                                updateProfileData={this.updateAndSaveData}
-                                            />
-                                        </FormItemWrapper>
+                                        </FormItemWrapper>                                       
                                         <FormItemWrapper
                                             title='Visa Status'
                                             tooltip='What is your current Visa/Citizenship status?'
@@ -257,30 +251,7 @@ export default class AccountProfile extends React.Component {
                                                 updateProfileData={this.updateWithoutSave}
                                                 savePhotoUrl='http://localhost:60290/profile/profile/updateProfilePhoto'
                                             />
-                                        </FormItemWrapper>
-                                        <FormItemWrapper
-                                            title='Profile Video'
-                                            tooltip='Upload a brief self-introduction video'
-                                            hideSegment={true}
-                                        >
-                                            <VideoUpload
-                                                videoName={this.state.profileData.videoName}
-                                                updateProfileData={this.updateWithoutSave}
-                                                saveVideoUrl={'http://localhost:60290/profile/profile/updateTalentVideo'}
-                                            />
-                                        </FormItemWrapper>
-                                        <FormItemWrapper
-                                            title='CV'
-                                            tooltip='Upload your CV. Accepted files are pdf, doc & docx)'
-                                            hideSegment={true}
-                                        >
-                                            <CVUpload
-                                                cvName={this.state.profileData.cvName}
-                                                cvUrl={this.state.profileData.cvUrl}
-                                                updateProfileData={this.updateWithoutSave}
-                                                saveCVUrl={'http://localhost:60290/profile/profile/updateTalentCV'}
-                                            />
-                                        </FormItemWrapper>
+                                        </FormItemWrapper>                                       
                                         <SelfIntroduction
                                             summary={this.state.profileData.summary}
                                             description={this.state.profileData.description}
