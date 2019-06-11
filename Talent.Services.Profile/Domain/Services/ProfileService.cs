@@ -366,7 +366,20 @@ namespace Talent.Services.Profile.Domain.Services
         public async Task<IEnumerable<TalentSnapshotViewModel>> GetTalentSnapshotList(string employerOrJobId, bool forJob, int position, int increment)
         {
             //Your code here;
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            var results = new List<TalentSnapshotViewModel>();
+            var dummyData = new TalentSnapshotViewModel
+            {
+                CurrentEmployment = "MVP Studio",
+                Level = "SoftWare Developer",
+                Name = "RamaPriya",
+                PhotoId = "",
+                Skills = new List<string> { "C#", ".Net Core", "Javascript", "ReactJS", "PreactJS" },
+                Summary = "Veronika Ossi is a set designer living in New York who enjoys kittens, music, and partying.",
+                Visa = "Citizen"
+            };
+            results.Add(dummyData);
+            return results;
         }
 
         public async Task<IEnumerable<TalentSnapshotViewModel>> GetTalentSnapshotList(IEnumerable<string> ids)
