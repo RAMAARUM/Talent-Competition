@@ -137,15 +137,20 @@ namespace Talent.Services.Profile.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "talent")]
         public async Task<IActionResult> GetLanguages(String id = "")
         {
-               String talentId = String.IsNullOrWhiteSpace(id) ? _userAppContext.CurrentUserId : id;
-              User profile = null;
-              profile = (await _userRepository.GetByIdAsync(talentId));
+            try
             {
-                var languages = profile.Languages.Select(x => new AddLanguageViewModel { Id = x.Id, Name = x.Language, Level = x.LanguageLevel }).ToList();
+                String talentId = String.IsNullOrWhiteSpace(id) ? _userAppContext.CurrentUserId : id;
+                User profile = null;
+                profile = (await _userRepository.GetByIdAsync(talentId));
+                {
+                    var languages = profile.Languages.Select(x => new AddLanguageViewModel { Id = x.Id, Name = x.Language, Level = x.LanguageLevel }).ToList();
 
-                return Json(new { Success = true, data = languages });
+                    return Json(new { Success = true, data = languages });
+                }
             }
-
+            catch (Exception e) {
+                return Json(new { Success = false, e.Message });
+            }
         }
         
 
@@ -185,31 +190,45 @@ namespace Talent.Services.Profile.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "talent")]
         public async Task<ActionResult> DeleteLanguage([FromBody] AddLanguageViewModel language)
         {
-            String id = " ";
-            String talentId = String.IsNullOrWhiteSpace(id) ? _userAppContext.CurrentUserId : id;
-            User profile = null;
-            profile = (await _userRepository.GetByIdAsync(talentId));
-
-            var langelement = profile.Languages.SingleOrDefault(x => x.Id == language.Id);
+            try
             {
-                profile.Languages.Remove(langelement);
-                await _userRepository.Update(profile);
-                return Json(new { Success = true });
+                String id = " ";
+                String talentId = String.IsNullOrWhiteSpace(id) ? _userAppContext.CurrentUserId : id;
+                User profile = null;
+                profile = (await _userRepository.GetByIdAsync(talentId));
+
+                var langelement = profile.Languages.SingleOrDefault(x => x.Id == language.Id);
+                {
+                    profile.Languages.Remove(langelement);
+                    await _userRepository.Update(profile);
+                    return Json(new { Success = true });
+                }
             }
- 
+            catch (Exception e)
+            {
+                return Json(new { Success = false, message = e });
+            }
+
         }
 
         [HttpGet("getSkill")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "talent")]
         public async Task<IActionResult> GetSkills(String id = "")
         {
-                String talentId = String.IsNullOrWhiteSpace(id) ? _userAppContext.CurrentUserId : id;
-            User profile = null;
-            profile = (await _userRepository.GetByIdAsync(talentId));
+            try
             {
-                var skills = profile.Skills.Select(x => new AddSkillViewModel { Id = x.Id, Name = x.Skill, Level = x.ExperienceLevel }).ToList();
+                String talentId = String.IsNullOrWhiteSpace(id) ? _userAppContext.CurrentUserId : id;
+                User profile = null;
+                profile = (await _userRepository.GetByIdAsync(talentId));
+                {
+                    var skills = profile.Skills.Select(x => new AddSkillViewModel { Id = x.Id, Name = x.Skill, Level = x.ExperienceLevel }).ToList();
 
-                return Json(new { Success = true, data = skills });
+                    return Json(new { Success = true, data = skills });
+                }
+            }
+            catch (Exception e)
+            {
+                return Json(new { Success = false, message = e });
             }
         }
 
@@ -217,6 +236,7 @@ namespace Talent.Services.Profile.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "talent")]
         public ActionResult AddSkill([FromBody]AddSkillViewModel skill)
         {
+            try
             {
                 if (ModelState.IsValid)
                 {
@@ -233,10 +253,13 @@ namespace Talent.Services.Profile.Controllers
                     var user = _userRepository.GetByIdAsync(talentId).Result;
                     user.Skills.Add(addSkill);
                     _userRepository.Update(user);
-                    return Json(new { Success = true });
-       
+                    
                 }
-                return Json(new { Success = false });
+                return Json(new { Success = true });
+            }
+            catch (Exception e)
+            {
+                return Json(new { Success = false, message = e });
             }
         }
 
@@ -244,56 +267,74 @@ namespace Talent.Services.Profile.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "talent")]
         public async Task<IActionResult> UpdateSkill([FromBody]AddSkillViewModel skill)
         {
-            if (ModelState.IsValid)
+            try
             {
-                String id = " ";
-                String talentId = String.IsNullOrWhiteSpace(id) ? _userAppContext.CurrentUserId : id;
-                var user = _userRepository.GetByIdAsync(talentId).Result;
-                if (skill.Id != null)
+                if (ModelState.IsValid)
                 {
-                    var updateSkill = user.Skills.SingleOrDefault(x => x.Id == skill.Id);
-                   
+                    String id = " ";
+                    String talentId = String.IsNullOrWhiteSpace(id) ? _userAppContext.CurrentUserId : id;
+                    var user = _userRepository.GetByIdAsync(talentId).Result;
+                    if (skill.Id != null)
                     {
-                        updateSkill.Skill = skill.Name;
-                        updateSkill.ExperienceLevel = skill.Level;
-                        
+                        var updateSkill = user.Skills.SingleOrDefault(x => x.Id == skill.Id);
+
+                        {
+                            updateSkill.Skill = skill.Name;
+                            updateSkill.ExperienceLevel = skill.Level;
+
+                        }
+                        await _userRepository.Update(user);
                     }
-                    await _userRepository.Update(user);
-                    
                 }
                 return Json(new { Success = true });
             }
-            return Json(new { Success = false });
+            catch (Exception e)
+            {
+                return Json(new { Success = false, message = e });
+            }
         }
 
         [HttpPost("deleteSkill")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "talent")]
         public async Task<IActionResult> DeleteSkill([FromBody]AddSkillViewModel skill)
         {
-            String id = " ";
-            String talentId = String.IsNullOrWhiteSpace(id) ? _userAppContext.CurrentUserId : id;
-            User profile = null;
-            profile = (await _userRepository.GetByIdAsync(talentId));
-            if (skill.Id != null)
+            try
             {
-                var deleteSkill = profile.Skills.SingleOrDefault(x => x.Id == skill.Id);
-                profile.Skills.Remove(deleteSkill);
-                await _userRepository.Update(profile);                
+                String id = " ";
+                String talentId = String.IsNullOrWhiteSpace(id) ? _userAppContext.CurrentUserId : id;
+                User profile = null;
+                profile = (await _userRepository.GetByIdAsync(talentId));
+                if (skill.Id != null)
+                {
+                    var deleteSkill = profile.Skills.SingleOrDefault(x => x.Id == skill.Id);
+                    profile.Skills.Remove(deleteSkill);
+                    await _userRepository.Update(profile);
+                }
+                return Json(new { Success = true });
             }
-            return Json(new { Success = true });
-
+            catch (Exception e)
+            {
+                return Json(new { Success = false, message = e });
+            }
         }
 
         [HttpGet("getExperience")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "talent")]
         public async Task<IActionResult> GetExperience (String id = "") 
         {
-            String talentId = String.IsNullOrWhiteSpace(id) ? _userAppContext.CurrentUserId : id;
-            User profile = null;
-            profile = (await _userRepository.GetByIdAsync(talentId));
+            try
             {
-                var experiences = profile.Experience.Select(x => new ExperienceViewModel { Id = x.Id, Company = x.Company, Position = x.Position, Responsibilities = x.Responsibilities, Start = x.Start, End = x.End }).ToList();
-                return Json(new { Success = true, data = experiences });
+                String talentId = String.IsNullOrWhiteSpace(id) ? _userAppContext.CurrentUserId : id;
+                User profile = null;
+                profile = (await _userRepository.GetByIdAsync(talentId));
+                {
+                    var experiences = profile.Experience.Select(x => new ExperienceViewModel { Id = x.Id, Company = x.Company, Position = x.Position, Responsibilities = x.Responsibilities, Start = x.Start, End = x.End }).ToList();
+                    return Json(new { Success = true, data = experiences });
+                }
+            }
+            catch (Exception e)
+            {
+                return Json(new { Success = false, message = e });
             }
         }
 
@@ -301,6 +342,7 @@ namespace Talent.Services.Profile.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "talent")]
         public ActionResult AddExperience([FromBody]ExperienceViewModel experience)
         {
+          try
             {
                 if (ModelState.IsValid)
                 {
@@ -318,10 +360,12 @@ namespace Talent.Services.Profile.Controllers
                     var user = _userRepository.GetByIdAsync(talentId).Result;
                     user.Experience.Add(addExp);
                     _userRepository.Update(user);
-                    return Json(new { Success = true });
-
                 }
-                return Json(new { Success = false });
+                return Json(new { Success = true });
+            }
+            catch (Exception e)
+            {
+                return Json(new { Success = false, message = e });
             }
         }
 
@@ -358,17 +402,24 @@ namespace Talent.Services.Profile.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "talent")]
         public async Task<IActionResult> DeleteExperience([FromBody]ExperienceViewModel experience)
         {
-            String id = " ";
-            String talentId = String.IsNullOrWhiteSpace(id) ? _userAppContext.CurrentUserId : id;
-            User profile = null;
-            profile = (await _userRepository.GetByIdAsync(talentId));
-            if (experience.Id != null)
+            try
             {
-                var deleteExp = profile.Experience.SingleOrDefault(x => x.Id == experience.Id);
-                profile.Experience.Remove(deleteExp);
-                await _userRepository.Update(profile);
+                String id = " ";
+                String talentId = String.IsNullOrWhiteSpace(id) ? _userAppContext.CurrentUserId : id;
+                User profile = null;
+                profile = (await _userRepository.GetByIdAsync(talentId));
+                if (experience.Id != null)
+                {
+                    var deleteExp = profile.Experience.SingleOrDefault(x => x.Id == experience.Id);
+                    profile.Experience.Remove(deleteExp);
+                    await _userRepository.Update(profile);
+                }
+                return Json(new { Success = true });
             }
-            return Json(new { Success = true });
+            catch (Exception e)
+            {
+                return Json(new { Success = false, message = e });
+            }
 
         }
 
@@ -417,14 +468,20 @@ namespace Talent.Services.Profile.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "talent")]
         public async Task<ActionResult> UpdateProfilePhoto([FromBody]string Photo)
         {
-            String id = " ";
-            String talentId = String.IsNullOrWhiteSpace(id) ? _userAppContext.CurrentUserId : id;
-            User profile = null;
-            profile = (await _userRepository.GetByIdAsync(talentId));
-            profile.ProfilePhotoUrl = Photo;
-            await _userRepository.Update(profile);
-            return Json(new { Success = true });
-
+            try
+            {
+                String id = " ";
+                String talentId = String.IsNullOrWhiteSpace(id) ? _userAppContext.CurrentUserId : id;
+                User profile = null;
+                profile = (await _userRepository.GetByIdAsync(talentId));
+                profile.ProfilePhotoUrl = Photo;
+                await _userRepository.Update(profile);
+                return Json(new { Success = true });
+            }
+            catch (Exception e)
+            {
+                return Json(new { Success = false, message = e });
+            }
 
         }
 
@@ -638,6 +695,7 @@ namespace Talent.Services.Profile.Controllers
                 //            }
                 //        );
                 //}
+                
                 return Json(new { Success = true, Data = result });
             }
             catch (Exception e)

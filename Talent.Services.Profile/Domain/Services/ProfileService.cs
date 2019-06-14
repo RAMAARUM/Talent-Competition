@@ -48,32 +48,39 @@ namespace Talent.Services.Profile.Domain.Services
  
             String id = " ";
             String talentId = String.IsNullOrWhiteSpace(id) ? _userAppContext.CurrentUserId : id;
-            if (language.Id != null)
+            try
             {
+                if (language.Id != null)
+                {
 
-                var profile = _userRepository.GetByIdAsync(talentId).Result;
-                var langelement = profile.Languages.SingleOrDefault(x => x.Id == language.Id);
-                {
-                    langelement.Language = language.Name;
-                    langelement.LanguageLevel = language.Level;
+                    var profile = _userRepository.GetByIdAsync(talentId).Result;
+                    var langelement = profile.Languages.SingleOrDefault(x => x.Id == language.Id);
+                    {
+                        langelement.Language = language.Name;
+                        langelement.LanguageLevel = language.Level;
+                    }
+                    _userRepository.Update(profile);
+                    return true;
                 }
-                _userRepository.Update(profile);
-                return true;
-            }
-            else
-            {
-                var lang = new UserLanguage
+                else
                 {
-                    Id = ObjectId.GenerateNewId().ToString(),
-                    UserId = _userAppContext.CurrentUserId,
-                    Language = language.Name,
-                    LanguageLevel = language.Level,
-                    IsDeleted = false
-                };
-                var user = _userRepository.GetByIdAsync(talentId).Result;
-                user.Languages.Add(lang);
-                _userRepository.Update(user);
-                return true;
+                    var lang = new UserLanguage
+                    {
+                        Id = ObjectId.GenerateNewId().ToString(),
+                        UserId = _userAppContext.CurrentUserId,
+                        Language = language.Name,
+                        LanguageLevel = language.Level,
+                        IsDeleted = false
+                    };
+                    var user = _userRepository.GetByIdAsync(talentId).Result;
+                    user.Languages.Add(lang);
+                    _userRepository.Update(user);
+                    return true;
+                }
+            }
+            catch (MongoException e)
+            {
+                return false;
             }
         }
 
@@ -365,21 +372,22 @@ namespace Talent.Services.Profile.Domain.Services
 
         public async Task<IEnumerable<TalentSnapshotViewModel>> GetTalentSnapshotList(string employerOrJobId, bool forJob, int position, int increment)
         {
-            //Your code here;
-            //throw new NotImplementedException();
-            var results = new List<TalentSnapshotViewModel>();
-            var dummyData = new TalentSnapshotViewModel
-            {
-                CurrentEmployment = "MVP Studio",
-                Level = "SoftWare Developer",
-                Name = "RamaPriya",
-                PhotoId = "",
-                Skills = new List<string> { "C#", ".Net Core", "Javascript", "ReactJS", "PreactJS" },
-                Summary = "Veronika Ossi is a set designer living in New York who enjoys kittens, music, and partying.",
-                Visa = "Citizen"
-            };
-            results.Add(dummyData);
-            return results;
+                //Your code here;
+                //throw new NotImplementedException();
+                var results = new List<TalentSnapshotViewModel>();
+                var dummyData = new TalentSnapshotViewModel
+                {
+                    CurrentEmployment = "MVP Studio",
+                    Level = "SoftWare Developer",
+                    Name = "RamaPriya",
+                    PhotoId = "",
+                    Skills = new List<string> { "C#", ".Net Core", "Javascript", "ReactJS", "PreactJS" },
+                    Summary = "Veronika Ossi is a set designer living in New York who enjoys kittens, music, and partying.",
+                    Visa = "Citizen"
+                };
+                results.Add(dummyData);
+                return results;
+            
         }
 
         public async Task<IEnumerable<TalentSnapshotViewModel>> GetTalentSnapshotList(IEnumerable<string> ids)
