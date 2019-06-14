@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Talent.Services.Profile.Models.Profile
 {
@@ -16,6 +13,15 @@ namespace Talent.Services.Profile.Models.Profile
     {
         public string Name { get; set; }
         public string Level { get; set; }
+        public string Id { get; set; }
+        public string CurrentUserId { get; set; }
+    }
+
+    public class EditLanguageViewModel
+    {
+        public string Name { get; set; }
+        public string Level { get; set; }
+        [Required(ErrorMessage = "Id is required.")]
         public string Id { get; set; }
         public string CurrentUserId { get; set; }
     }

@@ -50,20 +50,6 @@ namespace Talent.Services.Profile.Domain.Services
             String talentId = String.IsNullOrWhiteSpace(id) ? _userAppContext.CurrentUserId : id;
             try
             {
-                if (language.Id != null)
-                {
-
-                    var profile = _userRepository.GetByIdAsync(talentId).Result;
-                    var langelement = profile.Languages.SingleOrDefault(x => x.Id == language.Id);
-                    {
-                        langelement.Language = language.Name;
-                        langelement.LanguageLevel = language.Level;
-                    }
-                    _userRepository.Update(profile);
-                    return true;
-                }
-                else
-                {
                     var lang = new UserLanguage
                     {
                         Id = ObjectId.GenerateNewId().ToString(),
@@ -76,7 +62,30 @@ namespace Talent.Services.Profile.Domain.Services
                     user.Languages.Add(lang);
                     _userRepository.Update(user);
                     return true;
-                }
+                
+            }
+            catch (MongoException e)
+            {
+                return false;
+            }
+        }
+
+        public bool EditNewLanguage(EditLanguageViewModel language)
+        {
+
+            String id = " ";
+            String talentId = String.IsNullOrWhiteSpace(id) ? _userAppContext.CurrentUserId : id;
+            try
+            {
+                    var profile = _userRepository.GetByIdAsync(talentId).Result;
+                    var langelement = profile.Languages.SingleOrDefault(x => x.Id == language.Id);
+                    {
+                        langelement.Language = language.Name;
+                        langelement.LanguageLevel = language.Level;
+                    }
+                    _userRepository.Update(profile);
+                    return true;
+               
             }
             catch (MongoException e)
             {
